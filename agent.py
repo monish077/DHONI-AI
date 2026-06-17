@@ -55,9 +55,11 @@ Always respond as if speaking out loud — no markdown, no bullet points, just n
 # entrypoint() is only called AFTER req.accept() runs here.
 async def request_fnc(req: JobRequest) -> None:
     logger.info(f"📥 Job received — room: {req.room.name}")
-    await req.accept()
-    logger.info("✅ Job accepted")
-
+    try:
+        await req.accept()
+        logger.info("✅ Job accepted")
+    except Exception as e:
+        logger.error(f"❌ Failed to accept job: {e}", exc_info=True)
 
 # ── ENTRYPOINT ───────────────────────────────────────────────────────────────
 async def entrypoint(ctx: JobContext) -> None:
@@ -68,7 +70,7 @@ async def entrypoint(ctx: JobContext) -> None:
 
     session = AgentSession(
         llm=google.realtime.RealtimeModel(
-            model="models/gemini-3.1-flash-live-preview",   # ← Bug B fix: model must be specified
+            model="gemini-2.0-flash-live-exp-0514",
             voice="Puck",
             temperature=0.8,
         )
