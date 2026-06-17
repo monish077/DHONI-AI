@@ -1,0 +1,15 @@
+# Python
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Next.js
+dhoni-ai-web/.next/
+dhoni-ai-web/node_modules/
+dhoni-ai-web/.env.local
+
+# OS
+.DS_Store
+Thumbs.db
