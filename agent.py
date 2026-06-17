@@ -68,7 +68,7 @@ async def entrypoint(ctx: JobContext) -> None:
 
     session = AgentSession(
         llm=google.realtime.RealtimeModel(
-            model="gemini-2.0-flash-exp",   # ← Bug B fix: model must be specified
+            model="gemini-live-2.5-flash-preview",   # ← Bug B fix: model must be specified
             voice="Puck",
             temperature=0.8,
         )
