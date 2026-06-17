@@ -13,3 +13,9 @@ dhoni-ai-web/.env.local
 # OS
 .DS_Store
 Thumbs.db
+
+node_modules
+.next
+out
+dist
+build
