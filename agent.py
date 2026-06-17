@@ -1,11 +1,6 @@
 """
-Dhoni AI Voice Agent
-Run this on YOUR LAPTOP while the Vercel frontend is live.
-Anyone who opens the site will connect to this agent via LiveKit Cloud.
-
-Setup:
-  pip install "livekit-agents[google]==1.6.0" python-dotenv
-  python agent.py dev
+Dhoni AI Voice Agent - FIXED VERSION
+Run: python agent.py dev
 """
 
 import logging
@@ -16,7 +11,7 @@ from livekit.agents import Agent, AgentSession, JobContext, JobRequest, WorkerOp
 from livekit.plugins import google
 
 load_dotenv()
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("dhoni-ai")
 
 
@@ -24,11 +19,11 @@ class DhoniAssistant(Agent):
     def __init__(self):
         super().__init__(
             instructions="""
-You are Dhoni AI, a premium Tamil-English (Tanglish) voice assistant created by Monish.
+You are Dhoni AI, a Tamil-English (Tanglish) voice assistant created by Monish.
 
 PERSONALITY:
-- You are calm, confident, and wise — like MS Dhoni himself
-- Speak in Tanglish: mix Tamil and English naturally
+- Calm, confident, and wise like MS Dhoni
+- Mix Tamil and English naturally in every response
 - Keep replies SHORT — 1-3 sentences max for voice
 - Sound warm, energetic, and helpful
 
@@ -36,67 +31,71 @@ TANGLISH EXAMPLES:
 - "Semma question bro! Let me explain."
 - "Idhu romba important — listen carefully."
 - "Super idea! Indha approach try pannunga."
-- "Naan ready bro, enna venum kelunga!"
 
-TOPICS you help with:
-- AI and Data Science
-- Full Stack Development
-- Career guidance and interviews
-- Coding problems
-- General questions
-
-Always respond as if speaking out loud — no markdown, no bullet points, just natural speech.
+TOPICS: AI, Data Science, Full Stack Dev, Career guidance, Coding
+Always respond as natural speech — no markdown, no bullet points.
 """
         )
 
 
-# ── THIS IS THE FIX — Bug A ──────────────────────────────────────────────────
-# Without request_fnc, every dispatched job is silently dropped.
-# entrypoint() is only called AFTER req.accept() runs here.
 async def request_fnc(req: JobRequest) -> None:
-    logger.info(f"📥 Job received — room: {req.room.name}")
+    logger.info(f"📥 Job received — room: {req.room.name}, agent: {req.agent_name}")
     try:
         await req.accept()
-        logger.info("✅ Job accepted")
+        logger.info("✅ Job accepted successfully")
     except Exception as e:
         logger.error(f"❌ Failed to accept job: {e}", exc_info=True)
 
-# ── ENTRYPOINT ───────────────────────────────────────────────────────────────
+
 async def entrypoint(ctx: JobContext) -> None:
-    logger.info("🔥 DHONI AI STARTING 🔥")
+    logger.info("🔥 DHONI AI ENTRYPOINT CALLED 🔥")
 
-    await ctx.connect()
-    logger.info(f"🔗 Connected to room: {ctx.room.name}")
+    try:
+        await ctx.connect()
+        logger.info(f"🔗 Connected to room: {ctx.room.name}")
+        logger.info(f"👥 Participants in room: {len(ctx.room.remote_participants)}")
+    except Exception as e:
+        logger.error(f"❌ Failed to connect to room: {e}", exc_info=True)
+        return
 
-    session = AgentSession(
-        llm=google.realtime.RealtimeModel(
+    try:
+        logger.info("🤖 Creating RealtimeModel...")
+        
+        # FIXED: Use correct model name
+        model = google.realtime.RealtimeModel(
             model="gemini-2.0-flash-live-exp-0514",
             voice="Puck",
             temperature=0.8,
         )
-    )
+        logger.info("✅ RealtimeModel created")
 
-    await session.start(
-        room=ctx.room,
-        agent=DhoniAssistant(),
-    )
-    logger.info("🎙️  Session started — sending greeting")
+        session = AgentSession(llm=model)
+        logger.info("✅ AgentSession created")
 
-    await session.generate_reply(
-        instructions=(
-            "Greet warmly in Tanglish. Say you are Dhoni AI made by Monish. "
-            "Ask what they need help with. Max 2 sentences."
+        await session.start(
+            room=ctx.room,
+            agent=DhoniAssistant(),
         )
-    )
-    logger.info("🏏 Dhoni AI is live and listening!")
+        logger.info("✅ Session started successfully")
+
+        await session.generate_reply(
+            instructions=(
+                "Greet warmly in Tanglish. Say you are Dhoni AI made by Monish. "
+                "Ask what they want to learn today. Max 2 sentences."
+            )
+        )
+        logger.info("🏏 Dhoni AI greeted — now listening!")
+
+    except Exception as e:
+        logger.error(f"❌ Session error: {e}", exc_info=True)
+        raise
 
 
-# ── WORKER ───────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     cli.run_app(
         WorkerOptions(
             entrypoint_fnc=entrypoint,
-            request_fnc=request_fnc,   # ← Bug A fix
+            request_fnc=request_fnc,
             agent_name="dhoni-ai",
         )
     )
