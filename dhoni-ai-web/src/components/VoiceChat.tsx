@@ -240,6 +240,7 @@ export default function VoiceChat() {
         .tips{text-align:center} .tips p{font-size:12px;color:#555;margin:0 0 10px}
         .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
         .chips span{padding:6px 14px;background:#111;border:1px solid #2a2a2a;border-radius:50px;font-size:12px;color:#888}
+        
       `}</style>
     </div>
   );

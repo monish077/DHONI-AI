@@ -25,6 +25,28 @@ export default function Home() {
         <VoiceChat />
       </section>
 
+      <section className="demo-section">
+  <div className="demo-header">
+    <h2>🎬 See Dhoni AI in Action</h2>
+
+    <p>
+      Experience real-time voice conversations powered by
+      Gemini Flash Live, LiveKit, and a custom AI agent.
+    </p>
+  </div>
+
+  <video
+    className="demo-video"
+    controls
+    preload="metadata"
+    playsInline
+  >
+    <source src="/dhoni-demo.mp4.mov" type="video/mp4" />
+  </video>
+</section>
+
+
+
       {/* Feature pills */}
       <section className="features">
         {[
@@ -121,6 +143,49 @@ export default function Home() {
           border-radius: 24px;
           overflow: hidden;
         }
+
+        .demo-section {
+  width: 100%;
+}
+
+.demo-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.demo-header h2 {
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.demo-header p {
+  color: #888;
+  line-height: 1.7;
+  font-size: 14px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.demo-video {
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255,215,0,0.15);
+
+  box-shadow:
+    0 0 0 1px rgba(255,215,0,0.05),
+    0 20px 60px rgba(0,0,0,0.45);
+
+  transition: all 0.3s ease;
+}
+
+.demo-video:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 1px rgba(255,215,0,0.08),
+    0 30px 80px rgba(0,0,0,0.55);
+}
 
         /* Features */
         .features {
